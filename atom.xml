@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://zhangwenboi.github.io</id>
+    <title>wen&apos;s blog</title>
+    <updated>2022-08-24T07:44:09.477Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://zhangwenboi.github.io"/>
+    <link rel="self" href="https://zhangwenboi.github.io/atom.xml"/>
+    <subtitle>菜饼狮子</subtitle>
+    <logo>https://zhangwenboi.github.io/images/avatar.png</logo>
+    <icon>https://zhangwenboi.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2022, wen&apos;s blog</rights>
+    <entry>
+        <title type="html"><![CDATA[ng13使用自定义指令]]></title>
+        <id>https://zhangwenboi.github.io/post/ng13-shi-yong-zi-ding-yi-zhi-ling/</id>
+        <link href="https://zhangwenboi.github.io/post/ng13-shi-yong-zi-ding-yi-zhi-ling/">
+        </link>
+        <updated>2022-08-18T02:31:10.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+<p>使用angular13的时候,想像vue中一样声明一个自定义指令,例如:v-enterSearch 进行enter键搜索功能</p>
+<!-- more -->
+<p>习惯性的在搜索引擎上检索了一下,发现国内这方面的文章都很少,大多数都是ng1.5左右的文章,参考性不大.<br>
+索性直接去官方文档上查看,文档还是挺详细的.大致流程如下:<br>
+使用</p>
+<pre><code>ng generate directive  enter 
+</code></pre>
+<p>创建一个名称为 enter 的自定义指令,会生成相对应的文件<img src="https://zhangwenboi.github.io/post-images/1661320476163.png" alt="" loading="lazy"><br>
+enter.directive.ts就是主文件<br>
+enter.directive.spec.ts是测试文件可以忽略,也可以在创建的时候加上 --skip-tests 进行跳过<br>
+当不需要directive传递参数时,可以使用指令获取其元素进行处理</p>
+<pre><code>import { Directive,ElementRef} from '@angular/core'
+
+@Directive({
+    selector:'[appSelector]'  
+})
+export class AppSelectorDirective {
+    constructor(private $el:ElementRef){
+       //此时就可以使用$el 对绑定指令的元素进行操作了
+       //当然也可以添加事件的监听 例如 :
+       $el.nativeElement.addEventListener('click', function () {
+            console.log('Enter functions');
+         })
+        $el.nativeElement.style.background = 'yellow'
+    }
+    //使用原生的方法添加监听事件有点不优雅,也可以使用 @HostListener 进行事件监听,例如:
+    
+@HostListener ('click) onClick() {
+    console.log( btn, 'clicks:');
+  }
+  //也可以监听键盘鼠标事件
+  @HostListener ('window:keypress.enter' )  keyDown(event: KeyboardEvent) {
+    console.log('Enter press')
+  }
+ //也可以在@Directive({})中使用host 进行监听
+}
+}
+
+
+
+</code></pre>
+<p>如果想通过自定义指令传递参数进来可以使用 @input</p>
+<pre><code>import { Directive,ElementRef} from '@angular/core'
+
+@Directive({
+    selector:'[appSelector]'  
+})
+export class AppSelectorDirective {
+@Input() appSelector:string
+    constructor(private $el:ElementRef){}
+}
+
+</code></pre>
+<p>使用的时候直接在需要操作的dom元素 直接加入 appSelect=&quot;要传入的数据&quot;即可<br>
+例如:</p>
+<pre><code>    &lt;div [appSelect]=&quot;'123'&quot;&gt;55&lt;/div&gt;
+</code></pre>
+<p>下面是按回车键的自定义指令代码,</p>
+<pre><code>import { Directive, EventEmitter, Output } from '@angular/core';
+
+@Directive({
+  selector: '[appEnter]',
+  host: {
+    '(keypress)': 'keypress($event)'
+  }
+})
+export class EnterDirective {
+  @Output() appEnter: EventEmitter&lt;string&gt; = new EventEmitter&lt;string&gt;();
+  constructor() {
+
+  }
+  keypress($event: KeyboardEvent) {
+    if ($event.key === 'Enter') {
+      this.appEnter.emit()
+    }
+  }
+}
+
+</code></pre>
+<p>使用方法:<br>
+search 是需要传入按下enter时触发的事件</p>
+<pre><code> &lt;nz-input-group
+      [nzSuffix]=&quot;suffixIconSearch&quot;
+    &gt;
+      &lt;input
+        type=&quot;text&quot;
+        nz-input
+        [(ngModel)]=&quot;searchInput&quot;
+        placeholder=&quot;请输入要查询的hash值&quot;
+        (appEnter)=&quot;search()&quot;
+      /&gt;
+    &lt;/nz-input-group&gt;
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[css实现文字省略号(单行以及多行)]]></title>
+        <id>https://zhangwenboi.github.io/post/css-shi-xian-wen-zi-sheng-lue-hao-dan-xing-yi-ji-duo-xing/</id>
+        <link href="https://zhangwenboi.github.io/post/css-shi-xian-wen-zi-sheng-lue-hao-dan-xing-yi-ji-duo-xing/">
+        </link>
+        <updated>2022-08-03T03:03:32.000Z</updated>
+        <content type="html"><![CDATA[<p>多行省略,想省略几行就将 -webkit-line-clamp的属性值设置为多少</p>
+<pre><code>display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+</code></pre>
+<p>单行省略</p>
+<pre><code>   text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+</code></pre>
+<p>建议将其加入全局样式库,毕竟这很常用<br>
+不过还是要说 tailwindcss  jat模式真香</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[js根据url链接下载图片pdf等各种文件]]></title>
+        <id>https://zhangwenboi.github.io/post/js-gen-ju-url-lian-jie-xia-zai-tu-pian-pdf-deng-ge-chong-wen-jian/</id>
+        <link href="https://zhangwenboi.github.io/post/js-gen-ju-url-lian-jie-xia-zai-tu-pian-pdf-deng-ge-chong-wen-jian/">
+        </link>
+        <updated>2022-08-01T09:56:27.000Z</updated>
+        <content type="html"><![CDATA[<p>下载图片 pdf的时候保证不会打开新页面</p>
+<pre><code>function getFile(url,fileName){
+	var httpRequest = new XMLHttpRequest();
+	//指定响应类型，这决定了浏览器对返回内容的解析方式，设置为空或者text会作为字符解析、json会作为json解析，blob和arraybuffer会作为字节流解析
+	httpRequest.responseType ='arraybuffer';
+	httpRequest.open('GET', url, true);
+	httpRequest.onload  = function () {
+		if (httpRequest.readyState == 4 &amp;&amp; httpRequest.status == 200) {
+			//只有responseType为空或者text，才会使用responseText获取内容，其他情况                        httpRequest.response就是你需要的不含http头的返回内容
+			var content = httpRequest.response;
+		    var elink = document.createElement('a');
+		    elink.download = fileName;
+		    elink.style.display = 'none';
+		    var blob = new Blob([content]);
+			//创建指向内存中字节流的链接
+		    elink.href = URL.createObjectURL(blob);
+		    document.body.appendChild(elink);
+	        elink.click();
+		    document.body.removeChild(elink);
+		}
+	};
+	httpRequest.send();
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[el-checkbox状态不更新问题与form校验问题]]></title>
+        <id>https://zhangwenboi.github.io/post/el-checkbox-zhuang-tai-bu-geng-xin-wen-ti-yu-form-xiao-yan-wen-ti/</id>
+        <link href="https://zhangwenboi.github.io/post/el-checkbox-zhuang-tai-bu-geng-xin-wen-ti-yu-form-xiao-yan-wen-ti/">
+        </link>
+        <updated>2022-08-01T01:28:07.000Z</updated>
+        <content type="html"><![CDATA[<h2 id=""></h2>
+<h3 id="el-checkbox状态不更新问题">el-checkbox状态不更新问题</h3>
+<p>在项目中遇到了这样一个问题：<br>
+点击checkd不生效，但是选择form表单其他单选框的时候，el-checkd更新了<br>
+于是想到可能是vue没有监控到，用<br>
+<code>this.$set(this.formItem, 'resourcePlace', [])</code><br>
+替换为<br>
+<code>this.formItem.resourcePlace = []</code><br>
+嗯？？？可以了？？？什么情况？？？</p>
+<p>去看了下vue的<a href="https://cn.vuejs.org/v2/api/#Vue-set">官方文档</a>，发现了vue.$set作用如下<br>
+<img src="https://img-blog.csdnimg.cn/20200916133939458.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM3ODA3NzY3,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" loading="lazy"><br>
+我这是瞎猫碰上死耗子了吗？</p>
+<h2 id="el-checkbox其他解决方法">el-checkbox其他解决方法：</h2>
+<pre><code>&lt;el-checkbox :label=&quot;1&quot;  :checked=&quot;checked&quot;  @change=&quot;checked=!checked&quot;&gt;1&lt;/el-checkbox&gt;
+&lt;el-checkbox :label=&quot;2&quot;  :checked=&quot;checked&quot;  @change=&quot;checked=!checked&quot;&gt;2&lt;/el-checkbox&gt;
+&lt;el-checkbox :label=&quot;3&quot;  :checked=&quot;checked&quot;  @change=&quot;checked=!checked&quot;&gt;3&lt;/el-checkbox&gt;
+
+
+data(){
+	return{
+		//再在data中加上checked
+		checked:false,
+	}
+}
+</code></pre>
+<p><strong>解决方法：运用 @change=&quot;$forceUpdate()&quot;强制刷新</strong><br>
+详情查看<a href="https://cn.vuejs.org/v2/api/#vm-forceUpdate">官方文档</a></p>
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdnimg.cn/20200916135159791.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM3ODA3NzY3,size_16,color_FFFFFF,t_70#pic_center" alt="迫使 Vue 实例重新渲染。注意它仅仅影响实例本身和插入插槽内容的子组件，而不是所有子组件" loading="lazy"></figure>
+<p>用下面这两个方法可以了，但是form表单的验证又失效了，选择了选项还是会报错，<br>
+<strong>用this.$set却没问题</strong><br>
+一般来讲form检验出了问题一般就是el-form-item</p>
+<p>prop与v-model绑定不一致<br>
+或者el-from 绑定数据<br>
+:model写成了v-model</p>
+<p><strong>害，太讨厌007了，什么都学不到。加油！！！！！</strong></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[typeof null 为 object的问题，为什么typeof null 为 object]]></title>
+        <id>https://zhangwenboi.github.io/post/typeof-null-wei-object-de-wen-ti-wei-shi-me-typeof-null-wei-object/</id>
+        <link href="https://zhangwenboi.github.io/post/typeof-null-wei-object-de-wen-ti-wei-shi-me-typeof-null-wei-object/">
+        </link>
+        <updated>2022-08-01T01:26:47.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="typeof-null-为-object的问题">typeof null 为 object的问题</h1>
+<p>先看下下面的代码：</p>
+<pre><code>typeof 666 // 'number'
+typeof 'str' // 'string'
+typeof true // 'boolean'
+typeof Symbol() // 'symbol'
+typeof undefined // 'undefined'
+typeof null //object？？？
+</code></pre>
+<p>有没有发现一个问题，我们在用 <strong>typeof</strong> 测试基本数据的类型时， <strong>null</strong> 的类型竟然显示为 <strong>object</strong></p>
+<p>可它明明不是引用类型的数据啊，妥妥的良民。为什么还会判断类型为<strong>object</strong></p>
+<p>这其实只是js一个 bug</p>
+<p>？？？什么堂堂js还会有bug？这就要从很久之前说起了:</p>
+<p>​	lang lang ago~    js第一版时，当时采用32位的系统，数值是以32字节（<em>由一位到三位的标识+数值组成</em>）存储。</p>
+<p>而 <strong>null</strong> 与<strong>object</strong>的标识都为 <strong>000</strong>, <strong>typeof</strong>操作符判断类型的依据也恰好是标识。</p>
+<p>这就尴尬了... 想用<strong>typeof</strong>直接检测是不是<strong>object</strong>是不靠谱了。</p>
+<p>用call:</p>
+<pre><code>Object.prototype.toString.call(null)  //'[object Null]'
+</code></pre>
+<p>用instanceof：</p>
+<pre><code>let o = null;
+o instanceof Object;//fasle
+</code></pre>
+<p>好像都可以呀！</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[京东cookie京东ck]]></title>
+        <id>https://zhangwenboi.github.io/post/jing-dong-cookie-jing-dong-ck/</id>
+        <link href="https://zhangwenboi.github.io/post/jing-dong-cookie-jing-dong-ck/">
+        </link>
+        <updated>2022-08-01T01:26:14.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="手机电脑获取京东ck京东cookie">手机电脑获取京东ck京东Cookie</h2>
+<p>获取京东cookie最简单暴力获取京东CK<br>
+注意：用浏览器请使用隐身窗口，如果多个账号，一定不要点退出登录。直接关闭网页，清除浏览器cookie数据（隐身窗口无需这一步），重新进入网页登录下一个账号。退出会导致刚刚获取的ck失效。</p>
+<p>获取京东ck后可以玩很多好玩东西，需要的可以一起学习<br>
+以下浏览器都行<br>
+Chrome浏览器新版Edge浏览器国产360，QQ浏览器切换到极速模式</p>
+<h2 id="操作步骤">操作步骤</h2>
+<p>1.电脑浏览器打开手机京东网址 <a href="https://m.jd.com/">点这里</a></p>
+<p>2.按键盘F12键打开开发者工具，并进行短信登录操作。建议使用<strong>手机短信验证码</strong>登录(此方式cookie有效时长大概31天，其他登录方式比较短)<br>
+3.登录完成后找到network 搜索log  找到带log的请求，然后查看cookie<br>
+<img src="http://tva1.sinaimg.cn/large/007q3CTEly1h4tenlbcorj31h60q77wh.jpg" alt="image.png" loading="lazy"></p>
+<p>如果需获取第二个京东账号的cookie,不要在刚才的浏览器上面退出登录账号一(否则刚才获取的cookie会失效)，需再打开一个隐身窗口。更多个同理<br>
+这种方式拿COOKIE是最简单暴力的也是最不可能失效的方法，学会基本就是一辈子<br>
+如果是手机获取COOkie请往下看。<br>
+<a href="https://fruits.lanzouv.com/ibjcb00z5rad">安卓手机获取ck工具</a><br>
+<a href="https://www.bilibili.com/read/cv13437656">点击查看手机获取教程</a><br>
+<a href="http://42.192.55.205/">懒人找我帮你获取</a></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[vue 部署在页面空白,找不到js或css文件 (net::ERR_ABORTED 404 (Not Found))]]></title>
+        <id>https://zhangwenboi.github.io/post/vue-bu-shu-zai-ye-mian-kong-bai-zhao-bu-dao-js-huo-css-wen-jian-neterr_aborted-404-not-found/</id>
+        <link href="https://zhangwenboi.github.io/post/vue-bu-shu-zai-ye-mian-kong-bai-zhao-bu-dao-js-huo-css-wen-jian-neterr_aborted-404-not-found/">
+        </link>
+        <updated>2022-08-01T01:25:14.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="vue项目在nginx上部署正常">vue项目在nginx上部署正常</h2>
+<p>最近接了一个新项目,有一个模块测试,必须在甲方爸爸指定的终端上测试...<br>
+<img src="https://img-blog.csdnimg.cn/20210320144350608.gif#pic_center" alt="在这里插入图片描述" loading="lazy"></p>
+<p>好,为了所谓的安全,可以!</p>
+<p>过了几天....</p>
+<p>撸了几天的代码,发量又依稀减少了,<br>
+终于<br>
+本地联调,在<strong>nginx</strong>上部署成功啦!!!</p>
+<p>拿着装好打包完成的u盘 经历了几个环节终于把文件用 xftp 拖到了服务器上.</p>
+<p>嗯?看着部署小哥一顿操作,把我的小宝贝放到了<strong>tomcat</strong>下,心里涌起来一股不好的感觉...</p>
+<p>这....这和我想的不太一样啊!</p>
+<p>果不其然.....</p>
+<h1 id="问题">问题</h1>
+<p><strong>net::ERR_ABORTED 404 (Not Found)</strong><br>
+<img src="https://img-blog.csdnimg.cn/20210320151547946.png" alt="在这里插入图片描述" loading="lazy"><br>
+在本地复现了一下,大概就是这个错误,我将 /js 改为了 /dist/js  (dist是服务器上的包名)</p>
+<p>在浏览器上访问果然可以拿到,</p>
+<p>灰溜溜的回到工位上,看了下配置文件,果然</p>
+<p><strong>新机词挖一此莫禾多此!</strong><br>
+<img src="https://img-blog.csdnimg.cn/20210320152959885.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM3ODA3NzY3,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" loading="lazy"></p>
+<h1 id="解决">解决</h1>
+<p>在vue.config.js (<mark>vue-cli3</mark>以上)</p>
+<p>原来是 <strong>publicPath</strong> 配置的原因<br>
+配置成 <code>publicPath: './',</code>  收工! <code>根据需求来进行配置</code></p>
+<h1 id="拓展">拓展</h1>
+<p>更多详情可以   <strong><a href="https://zhuxianfei.com/jishu/js/26916.html">点击此处</a></strong>   查看几种公共路径( <code>publicPath</code> )的设置区别</p>
+<p>总结:还是要多看书,多走路啊!!!冲鸭</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[el-upload 阻止上传问题]]></title>
+        <id>https://zhangwenboi.github.io/post/el-upload-zu-zhi-shang-chuan-wen-ti/</id>
+        <link href="https://zhangwenboi.github.io/post/el-upload-zu-zhi-shang-chuan-wen-ti/">
+        </link>
+        <updated>2022-08-01T01:23:31.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E9%97%AE%E9%A2%98">问题</a></li>
+<li><a href="#%E8%A7%A3%E5%86%B3%E8%BF%87%E7%A8%8B">解决过程</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+</li>
+</ul>
+(el-upload 点击阻止上传)<br>
+今天修改公司之前项目遗留的问题的时候发现有个批量上传功能出了问题。<br>
+<img src="https://img-blog.csdnimg.cn/20200713161208998.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM3ODA3NzY3,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述" loading="lazy"></p>
+<h2 id="问题">问题</h2>
+<p>其中有两个按钮，无论点击哪一个按钮都会触发文件上传</p>
+<h2 id="解决过程">解决过程</h2>
+<p>先是去搜索了一下，并没有得到满意的答案，于是就去翻了翻element的官方文档，发现了下面的东西<br>
+<code>trigger:	触发文件选择框的内容 </code></p>
+<p><code>tip:	提示说明文字</code><br>
+意思就是如果你不加这两个，在el-upload标签中它就默认全都触发打开文件选择框；<br>
+那么有的朋友就要问了，那我不放在里面不行吗？<br>
+<strong>行</strong>！但是有可能选择文件后就会影响样式<br>
+所以还是顺手加上吧！<br>
+eg:</p>
+<pre><code> &lt;!--需要选择文件--&gt;
+&lt;el-button slot=&quot;trigger&quot; class=&quot;&quot; @click=&quot;showFile&quot;&gt;导入&lt;/el-button&gt;
+ &lt;!--不需要选择文件--&gt;
+&lt;el-button slot=&quot;tip&quot; class=&quot;&quot; @click=&quot;downMoadle&quot;&gt;下载模板&lt;/el-button&gt;
+
+</code></pre>
+<h2 id="总结">总结</h2>
+<p>以后处理问题还是先看文档好点，加油！</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[vue中的鼠标移动事件]]></title>
+        <id>https://zhangwenboi.github.io/post/vue-zhong-de-shu-biao-yi-dong-shi-jian/</id>
+        <link href="https://zhangwenboi.github.io/post/vue-zhong-de-shu-biao-yi-dong-shi-jian/">
+        </link>
+        <updated>2022-07-29T09:38:44.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="vue的鼠标移动事件">vue的鼠标移动事件</h2>
+<p>项目需求要在首页判断鼠标是否移动到页面最右边,然后浮现两个可操作的图标;<br>
+第一想法就是:</p>
+<h2 id="mousemove鼠标移动时触发">@ mousemove:鼠标移动时触发</h2>
+<p>试了一下果然可以;<br>
+<img src="https://img-blog.csdnimg.cn/20200627083623296.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM3ODA3NzY3,size_16,color_FFFFFF,t_70" alt="控制台输出信息" loading="lazy"></p>
+<h2 id="offsetx-clientx-pagex-screenx-的区别">offsetX / clientX / pageX / screenX 的区别</h2>
+<p>e.offsetX：鼠标相对于事件源的X方向的距离( firfox 不支持)<br>
+e.offsetY：鼠标相对于事件源的Y方向的距离( firfox 不支持)</p>
+<p>e.clientX：距离浏览器可视区域X方向的距离<br>
+e.clientY：距离浏览器可视区域Y方向的距离</p>
+<p>e.pageX：鼠标相对于文档X方向的距离<br>
+e.pageY：鼠标相对于文档X方向的距离</p>
+<p>e.screenX：鼠标距离屏幕X方向的距离<br>
+e.screenY：鼠标距离屏幕Y方向的距离(包含浏览器的地址栏)</p>
+<h2 id="获取页面与屏幕宽高">获取页面与屏幕宽高</h2>
+<p>由于是要到页面最右边的时候才要求触发事件,<br>
+于是就用了:</p>
+<pre><code>var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+var height =  window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+</code></pre>
+<h2 id="判定鼠标是否到达了指定位置">判定鼠标是否到达了指定位置</h2>
+<pre><code>if (e.clientX / width &gt;=0.95){
+       console.log('到达了最右边',e)
+     }
+</code></pre>
+]]></content>
+    </entry>
+</feed>
